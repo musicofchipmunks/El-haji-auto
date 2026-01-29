@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if the user is the authorized administrator
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == "elhajiauto@gmail.com";
+    }
+
+    // --- EL HAJI AUTO COLLECTIONS ---
+
+    match /elhauto_products/{productId} {
+      allow read: if true;
+      // Allow any user to update the stock (for order processing) 
+      // but only admin can update other fields or delete.
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']) &&
+        request.resource.data.stock >= 0 &&
+        request.resource.data.stock < resource.data.stock
+      );
+      allow create, delete: if isAdmin();
+    }
+
+    match /elhauto_orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /elhauto_appointments/{aptId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /elhauto_sales/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /elhauto_cars/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /elhauto_sellRequests/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /elhauto_contactMessages/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /elhauto_invoices/{docId} {
+      allow read, write: if true;
+    }
+
+    match /elhauto_admins/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // --- LEGACY COLLECTIONS (Fallback/Safety) ---
+
+    match /products/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /orders/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

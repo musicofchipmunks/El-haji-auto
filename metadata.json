@@ -1,0 +1,7 @@
+{
+  "name": "EL HAJI AUTO - Garage & Pièces Automobiles",
+  "description": "Site web professionnel pour EL HAJI AUTO, expert en mécanique automobile et vente de pièces de rechange au Maroc. Services de garage, huiles, lubrifiants, et accessoires.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
